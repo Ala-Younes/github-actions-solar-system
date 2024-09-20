@@ -170,13 +170,25 @@ jobs:
         with:
           version: 'v1.26.0' 
 
+      - name: Check if KUBECONFIG secret exists
+        run: |
+          if [ -n "${{ secrets.KUBECONFIG }}" ]; then
+            echo "KUBECONFIG secret is set"
+          else
+            echo "KUBECONFIG secret is not set"
+          fi
+
       - name: Verify Kubernetes Connection
         uses: azure/k8s-set-context@v4
         with:
           method: kubeconfig
           kubeconfig: '${{ secrets.KUBECONFIG }}'
 
-      - run: kubectl version --short -o yaml    
+      - name: Fetch Kubernetes Cluster Details
+        run: |
+          kubectl version --short -o yaml    
+          echo ----------------------------
+          kubectl get nodes
 
   prod-deploy:
     if: github.ref == 'refs/heads/main'
