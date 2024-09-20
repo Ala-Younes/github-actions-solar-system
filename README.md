@@ -77,6 +77,9 @@ if: github.ref == 'refs/heads/main'
 - A nice view of what was deployed : 
 ![deployment-onglet](ReadmeImages/deployment-onglet.png)
 
+# Reusbale Workflows
+- In reusbale workflows secret are not accessible directly we have to take some approache:
+
 
 ---
 ### kubeconfig File
