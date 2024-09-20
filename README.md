@@ -102,6 +102,46 @@ on:
         mongodb-password:
           required: true
 ```
+
+- One Of other limitations of reusable workflow is : 
+The environment vars are not directly accessible or propagated across the call of workflows
+
+We use Inputs in order to acces the env.vars
+Example :
+
+- the called Workflow
+```bash
+name: Testing - Reusable Workflow
+on: 
+  workflow_call:
+    inputs:
+      ingress-url:
+          description: Provide the Ingress URL
+          required: true
+          type: string
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          URL: ${{ inputs.ingress-url }}
+        run: |
+          curl https://$URL/live -s -k | jq -r .status | grep -i live
+```
+- the caller Workflow
+```bash
+  # dev-deploy job
+  integration-test:
+        needs: dev-deploy
+        uses: ./.github/workflows/reusable-workflow.yml
+        with:
+          ingress-url: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}
+  # next job
+``` 
+
+# QCM:
+![alt text](image.png)
+![alt text](image-1.png)
 ---
 ### kubeconfig File
 ```bash
