@@ -156,95 +156,9 @@ jobs:
   dev-deploy:
     if: contains(github.ref, 'feature/')
     needs: [docker]
-    runs-on: ubuntu-latest
-    environment: 
-      name: development 
-      url: https://www.google.com/
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Install Minikube
-        run: |
-          curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-          sudo install minikube-linux-amd64 /usr/local/bin/minikube
-
-      - name: Start Minikube
-        run: minikube start
-
-      - name: Intall Kubectl CLI
-        uses: azure/setup-kubectl@v4
-        with:
-          version: 'v1.26.0' 
-
-      - name: Configure Kubectl
-        run: |
-          minikube kubectl -- config view --flatten --minify > minikube-kubeconfig.yaml
-          echo "KUBECONFIG=minikube-kubeconfig.yaml" >> $GITHUB_ENV
-  
-      - name: Verify Kubernetes Connection
-        run: |
-          kubectl version --short -o yaml
-          echo ------------------------------------
-          kubectl get nodes
-             
-      - name: Save an envi Var 
-        run: echo "SAVED_ENV=localhost" >> $GITHUB_ENV
-
-      - name: Replace Token In Manifest Files
-        uses: cschleiden/replace-tokens@v1
-        with:
-          tokenPrefix: '_{_'
-          tokenSuffix: '_}_'
-          files: '["kubernetes/development/*.yaml"]'
-        env:
-          NAMESPACE: ${{ vars.NAMESPACE }}
-          REPLICAS: ${{ vars.REPLICAS }}
-          IMAGE: ${{ env.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
-          INGRESS_IP: ${{ env.SAVED_ENV }}
-        
-      - name: Check Files
-        run: |
-          cat kubernetes/development/*.yaml
-
-      - name: Create MongoDB Secret
-        run: |
-          # Verify namespace exists
-          if ! kubectl get namespace development &> /dev/null; then
-            echo "Namespace 'development' does not exist. Creating it now..."
-            kubectl create namespace development
-          fi
-            
-          # Create secret
-          kubectl -n development create secret generic mongo-db-creds \
-          --from-literal=MONGO_URI=${{ env.MONGO_URI }} \
-          --from-literal=MONGO_USERNAME=${{ env.MONGO_USERNAME }} \
-          --from-literal=MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }} \
-          --save-config \
-          --dry-run=client \
-          -o yaml | kubectl apply -f -
-        env:
-          MONGO_URI: mongodb+srv://supercluster.d83jj.mongodb.net/superData
-          MONGO_USERNAME: superuser
-          KUBECONFIG: minikube-kubeconfig.yaml
-
-      - name: Testing endpoitn
-        run: |
-          echo development getting ingress
-          kubectl -n development get ing
-      - name: Clean up
-        if: always()
-        run: minikube delete
+    uses: .github/workflows/reuse-deployment.yml
 
   prod-deploy:
     if: github.ref == 'refs/heads/main'
     needs: [docker]
-    runs-on: ubuntu-latest
-    environment: 
-      name: production 
-      url: https://www.linkedin.com/in/ala-younes/
-
-    steps:
-    - name: Echoing
-      run: |
-        echo production .........
+    uses: .github/workflows/reuse-deployment.yml
