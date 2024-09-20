@@ -176,9 +176,7 @@ jobs:
           method: kubeconfig
           kubeconfig: '${{ secrets.KUBECONFIG }}'
 
-      - run: |
-          echo Secret : ${{ secrets.KUBECONFIG }}
-          kubectl version --short -o yaml    
+      - run: kubectl version --short -o yaml    
 
   prod-deploy:
     if: github.ref == 'refs/heads/main'
