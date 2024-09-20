@@ -80,7 +80,28 @@ if: github.ref == 'refs/heads/main'
 # Reusbale Workflows
 - In reusbale workflows secret are not accessible directly we have to take some approache:
 
+### Example : 
+- Caller
+```
+ dev-deploy:
+    if: contains(github.ref, 'feature/')
+    needs: [docker]
+    uses: ./.github/workflows/reuse-deployment.yml
+    secrets: 
+      mongodb-password: ${{ secrets.KUBECONFIG }}
+      k8s-kubeconfig: ${{ secrets.MONGO_PASSWORD }}
+```
 
+- Called
+```
+on:
+    workflow_call:
+      secrets:
+        k8s-kubeconfig: 
+          required:  true
+        mongodb-password:
+          required: true
+```
 ---
 ### kubeconfig File
 ```bash
