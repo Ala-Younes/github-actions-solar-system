@@ -185,16 +185,16 @@ jobs:
     steps:
       - name: Summarize Echoing
         run: |
-          echo ${{ github.ref }}
-          echo .....................
-
-      # - name: Summarize Deployments
-      #   run: |
-      #     if [[ "${{ contains(github.ref, 'feature/*') }}" == "true" ]]; then
-      #       echo "Development Deployment Status: ${{ needs.dev-deploy.outputs.deployment-status }}"
-      #       echo "Development URL: ${{ needs.dev-deploy.outputs.deployed-url }}"
-      #     fi
-      #     if [[ "${{ github.ref == 'refs/heads/main' }}" == "true" ]]; then
-      #       echo "Production Deployment Status: ${{ needs.prod-deploy.outputs.deployment-status }}"
-      #       echo "Production URL: ${{ needs.prod-deploy.outputs.deployed-url }}"
-      #     fi
+          echo "GitHub ref: ${{ github.ref }}"
+          echo "Checking deployment statuses..."
+        
+      - name: Summarize Deployments
+        run: |
+          if [[ "${{ github.ref }}" == refs/heads/main ]]; then
+            echo "Production Deployment Status: ${{ needs.prod-deploy.outputs.deployment-status }}"
+            echo "Production URL: ${{ needs.prod-deploy.outputs.deployed-url }}"
+          elif [[ "${{ github.ref }}" == feature/* ]]; then
+            echo "Development Deployment Status: ${{ needs.dev-deploy.outputs.deployment-status }}"
+            echo "Development URL: ${{ needs.dev-deploy.outputs.deployed-url }}"
+          else
+            echo "No deployments were triggered for this branch."
