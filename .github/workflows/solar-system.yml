@@ -180,8 +180,9 @@ jobs:
 
 
   deployment-summary:
-    needs: [dev-deploy, prod-deploy]
+    needs: [dev-deploy , prod-deploy]
     runs-on: ubuntu-latest
+    if: always()
     steps:
       - name: Summarize Echoing
         run: |
