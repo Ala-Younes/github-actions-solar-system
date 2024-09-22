@@ -32,8 +32,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-      - name: Check subfolder
-        run: echo ls -ltrd
+      - name: List directory contents
+        run: |
+          ls -R .
+          ls -R .github/workflows
+          ls -R .github/workflows/custom-actions
 
       - name: Composite Action - Cache & Install NPM Packages
         uses: ./.github/workflows/custom-actions/npm-action/action.yml
