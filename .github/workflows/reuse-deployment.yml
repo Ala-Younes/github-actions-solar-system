@@ -2,6 +2,25 @@ name: Deployment - Reusable Workflow
 
 on:
     workflow_call:
+      inputs:
+        mongodb-uri:
+          required: true
+          type: string
+        kubectl-version:
+          description: Provide the required Kubectl version
+          default: v1.27.0
+          required: false
+          type: string
+        k8s-manifest-dir:
+          description: Directory Containing Kubernetes Manifests files
+          default: kubernetes/
+          required: true
+          type: string
+        environment:
+          description: Provide the Deployement Environment
+          default: dev
+          required: true
+          type: string
       secrets:
         k8s-kubeconfig: 
           required:  true
@@ -12,7 +31,7 @@ jobs:
     reuse-deploy:
         runs-on: ubuntu-latest
         environment: 
-            name: development 
+            name: ${{ inputs.environment }} 
             url: https://www.google.com/
 
         steps:
@@ -30,7 +49,7 @@ jobs:
         - name: Intall Kubectl CLI
           uses: azure/setup-kubectl@v4
           with:
-            version: 'v1.26.0' 
+            version: ${{ inputs.kubectl-version }} 
 
         - name: Configure Kubectl
           run: |
@@ -51,7 +70,7 @@ jobs:
           with:
             tokenPrefix: '_{_'
             tokenSuffix: '_}_'
-            files: '["kubernetes/development/*.yaml"]'
+            files: '["${{ inputs.k8s-manifest-dir }}/*.yaml"]'
           env:
             NAMESPACE: ${{ vars.NAMESPACE }}
             REPLICAS: ${{ vars.REPLICAS }}
@@ -60,7 +79,7 @@ jobs:
             
         - name: Check Files
           run: |
-            cat kubernetes/development/*.yaml
+            cat ${{ inputs.k8s-manifest-dir }}/*.yaml
 
         - name: Create MongoDB Secret
           run: |
@@ -72,7 +91,7 @@ jobs:
                 
             # Create secret
             kubectl -n development create secret generic mongo-db-creds \
-            --from-literal=MONGO_URI=${{ env.MONGO_URI }} \
+            --from-literal=MONGO_URI=${{ inputs.mongodb-uri }} \
             --from-literal=MONGO_USERNAME=${{ env.MONGO_USERNAME }} \
             --from-literal=MONGO_PASSWORD=${{ secrets.mongodb-password }} \
             --save-config \
@@ -83,7 +102,7 @@ jobs:
             MONGO_USERNAME: superuser
             KUBECONFIG: minikube-kubeconfig.yaml
 
-        - name: Testing endpoitn
+        - name: Testing endpoint
           run: |
             echo development getting ingress
             kubectl -n development get ing

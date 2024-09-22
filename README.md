@@ -88,8 +88,8 @@ if: github.ref == 'refs/heads/main'
     needs: [docker]
     uses: ./.github/workflows/reuse-deployment.yml
     secrets: 
-      mongodb-password: ${{ secrets.KUBECONFIG }}
-      k8s-kubeconfig: ${{ secrets.MONGO_PASSWORD }}
+      mongodb-password: ${{ secrets.MONGO_PASSWORD }}
+      k8s-kubeconfig: ${{ secrets.KUBECONFIG }}
 ```
 
 - Called
@@ -104,7 +104,7 @@ on:
 ```
 
 - One Of other limitations of reusable workflow is : 
-The environment vars are not directly accessible or propagated across the call of workflows
+The environment vars are not directly accessible or propagated across the call of workflows (If they are defined on the reusable workflow => no problem)
 
 We use Inputs in order to acces the env.vars
 Example :

@@ -160,6 +160,10 @@ jobs:
     secrets: 
       mongodb-password: ${{ secrets.MONGO_PASSWORD }}
       k8s-kubeconfig: ${{ secrets.KUBECONFIG }}
+    with:
+      mongodb-uri: ${{ vars.MONGO_URI }} 
+      k8s-manifest-dir: kubernetes/development
+      environment: development
 
   prod-deploy:
     if: github.ref == 'refs/heads/main'
@@ -168,3 +172,8 @@ jobs:
     secrets: 
       mongodb-password: ${{ secrets.MONGO_PASSWORD }}
       k8s-kubeconfig: ${{ secrets.KUBECONFIG }}
+    with:
+      mongodb-uri: ${{ vars.MONGO_URI }} 
+      mongodb-uri: ${{ vars.MONGO_URI }} 
+      k8s-manifest-dir: kubernetes/production
+      environment: production
