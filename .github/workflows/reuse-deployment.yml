@@ -2,6 +2,7 @@ name: Deployment - Reusable Workflow
 
 on:
     workflow_call:
+
       inputs:
         mongodb-uri:
           required: true
@@ -21,18 +22,29 @@ on:
           default: dev
           required: true
           type: string
+
       secrets:
         k8s-kubeconfig: 
           required:  true
         mongodb-password:
           required: true  
 
+      outputs:
+        deployment-status:
+          description: "The status of the deployment"
+          value: ${{ jobs.reuse-deploy.outputs.output-status }}
+        deployed-url:
+          description: "The URL of the deployed application"
+          value: ${{ jobs.reuse-deploy.outputs.output-url }}    
 jobs:
     reuse-deploy:
         runs-on: ubuntu-latest
         environment: 
             name: ${{ inputs.environment }} 
             url: https://www.google.com/
+        outputs:
+            output-status: ${{ steps.deployment-result.outputs.deployment_status }}
+            output-url: ${{ steps.deployment-result.outputs.deployed_url }}
 
         steps:
         - name: Checkout Repository
@@ -106,6 +118,13 @@ jobs:
           run: |
             echo development getting ingress
             kubectl -n development get ing
+
+        - name: Set Deployment Outputs
+          id: deployment-result
+          run: |
+            echo "deployment_status=success" >> $GITHUB_OUTPUT
+            echo "deployed_url=https://${{ env.SAVED_ENV }}/${{ inputs.environment }}" >> $GITHUB_OUTPUT
+
         - name: Clean up
           if: always()
           run: minikube delete

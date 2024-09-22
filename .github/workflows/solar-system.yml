@@ -164,6 +164,7 @@ jobs:
       mongodb-uri: ${{ vars.MONGO_URI }} 
       k8s-manifest-dir: kubernetes/development
       environment: development
+    
 
   prod-deploy:
     if: github.ref == 'refs/heads/main'
@@ -176,3 +177,19 @@ jobs:
       mongodb-uri: ${{ vars.MONGO_URI }} 
       k8s-manifest-dir: kubernetes/production
       environment: production
+
+
+  deployment-summary:
+    needs: [dev-deploy, prod-deploy]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summarize Deployments
+        run: |
+          if [[ "${{ needs.dev-deploy.result }}" == "success" ]]; then
+            echo "Development Deployment Status: ${{ needs.dev-deploy.outputs.deployment-status }}"
+            echo "Development URL: ${{ needs.dev-deploy.outputs.deployed-url }}"
+          fi
+          if [[ "${{ needs.prod-deploy.result }}" == "success" ]]; then
+            echo "Production Deployment Status: ${{ needs.prod-deploy.outputs.deployment-status }}"
+            echo "Production URL: ${{ needs.prod-deploy.outputs.deployed-url }}"
+          fi
