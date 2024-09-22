@@ -138,6 +138,18 @@ jobs:
           ingress-url: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}
   # next job
 ``` 
+# Custom GitHub actions :
+- whene pointing to the path of the custom action don't put the name of the actions:
+
+```bash 
+ - name: Composite Action - Cache & Install NPM Packages
+        uses: ./.github/workflows/custom-actions/npm-action
+        with:
+          path-to-folder: 'node_modules'
+```
+if we ./.github/workflows/custom-actions/npm-action/action.yml => Error 
+
+
 
 # QCM:
 ![alt text](image.png)
